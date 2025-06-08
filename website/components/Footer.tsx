@@ -4,6 +4,7 @@ import Logo from "./Logo";
 import { SOCIAL_LINKS } from "@/config";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear().toString();
   return (
     <footer className="border-t bg-gradient-to-br from-muted/30 to-muted/10 center">
       <div className="container py-12">
@@ -25,7 +26,7 @@ const Footer = () => {
             >
               GitHub
             </a>
-            <span>MIT License © {new Date().getFullYear()}</span>
+            <span>MIT License © {currentYear}</span>
           </div>
         </div>
       </div>
