@@ -194,7 +194,7 @@ export default function DocsPage() {
                     copied={copied}
                     onCopy={copyToClipboard}
                   >
-                    {`npm install ${PACKAGE_NAME}`}
+                    {`npm install ${String(PACKAGE_NAME)}`}
                   </CodeBlock>
 
                   <Alert className="border-yellow-500/20 bg-yellow-500/5">

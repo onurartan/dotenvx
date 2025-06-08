@@ -1,4 +1,3 @@
-
 export const PACKAGE_NAME = "dotenvxjs"
 export const PROJECT_VERSION = "0.0.1";
 
