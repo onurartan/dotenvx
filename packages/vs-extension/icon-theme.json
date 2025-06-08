@@ -1,0 +1,16 @@
+{
+  "iconDefinitions": {
+    "envx-file-icon": {
+      "iconPath": "assets/icon.png"
+    }
+  },
+  "fileExtensions": {
+    "envx": "envx-file-icon"
+  },
+  "fileNames": {
+    ".envx": "envx-file-icon"
+  },
+  "languageIds": {
+    "envx": "envx-file-icon"
+  }
+}

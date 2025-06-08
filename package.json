@@ -1,0 +1,8 @@
+{
+  "name": "dotenvx-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "website"
+  ]
+}

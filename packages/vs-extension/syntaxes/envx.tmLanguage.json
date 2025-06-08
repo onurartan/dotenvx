@@ -1,0 +1,116 @@
+{
+  "scopeName": "source.envx",
+  "name": "ENVX",
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.envx",
+      "match": "^\\s*#.*$"
+    },
+    {
+      "name": "keyword.other.section.envx",
+      "begin": "^\\s*\\[(\\w+)\\]",
+      "beginCaptures": {
+        "0": { "name": "keyword.other.section.brackets.envx" },
+        "1": { "name": "variable.other.key.envx" }
+      },
+      "end": "$"
+    },
+    {
+      "name": "keyword.other.section.envx",
+      "match": "^\\s*\\w+(?=\\s*=)"
+    },
+    {
+      "name": "keyword.operator.assignment.envx",
+      "match": "\\s*=\\s*"
+    },
+    {
+      "name": "string.quoted.triple.envx",
+      "begin": "\"\"\"",
+      "end": "\"\"\"",
+      "patterns": [
+        {
+          "name": "variable.interpolation.envx",
+          "begin": "\\$\\{",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.begin.envx" }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.end.envx" }
+          },
+          "patterns": [
+            {
+              "name": "variable.other.interpolated.envx",
+              "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+            }
+          ]
+        },
+        {
+          "name": "constant.character.escape.envx",
+          "match": "\\\\."
+        },
+        {
+          "name": "string.quoted.triple.envx"
+        }
+      ]
+    },
+    {
+      "name": "string.quoted.double.envx",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "variable.interpolation.envx",
+          "begin": "\\$\\{",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.begin.envx" }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.end.envx" }
+          },
+          "patterns": [
+            {
+              "name": "variable.other.interpolated.envx",
+              "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+            }
+          ]
+        },
+        {
+          "name": "constant.character.escape.envx",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "constant.language.boolean.envx",
+      "match": "\\b(true|false)\\b"
+    },
+    {
+      "name": "constant.numeric.envx",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    {
+      "name": "keyword.operator.ternary.envx",
+      "match": "\\?|:"
+    },
+    {
+      "name": "variable.interpolation.envx",
+      "begin": "\\$\\{",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.interpolation.begin.envx" }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.interpolation.end.envx" }
+      },
+      "patterns": [
+        {
+          "name": "variable.other.interpolated.envx",
+          "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    }
+  ],
+  "fileTypes": ["envx"]
+}

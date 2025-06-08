@@ -1,0 +1,111 @@
+{
+  "Boolean Variable": {
+    "prefix": "envx-bool",
+    "body": [
+      "${1:KEY}=\"${2|true,false|}\"",
+      "",
+      "[${1}]",
+      "type=\"boolean\"",
+      "required=${3|true,false|}",
+      "default=\"${2}\""
+    ],
+    "description": "Boolean environment variable with type, required and default"
+  },
+
+  "Number Variable": {
+    "prefix": "envx-num",
+    "body": [
+      "${1:PORT}=${2:8080}",
+      "",
+      "[${1}]",
+      "type=\"number\"",
+      "required=${3|true,false|}",
+      "default=${2}"
+    ],
+    "description": "Number variable with type, required and default"
+  },
+
+  "String Variable": {
+    "prefix": "envx-str",
+    "body": [
+      "${1:KEY}=\"${2:value}\"",
+      "",
+      "[${1}]",
+      "type=\"string\"",
+      "required=${3|true,false|}",
+      "default=\"${2}\""
+    ],
+    "description": "String variable with schema config"
+  },
+
+  "Enum Variable": {
+    "prefix": "envx-enum",
+    "body": [
+      "${1:ENV_MODE}=\"${2:development}\"",
+      "",
+      "[${1}]",
+      "type=\"enum\"",
+      "values=[\"production\", \"development\", \"test\"]",
+      "required=${3|true,false|}",
+      "default=\"${2}\""
+    ],
+    "description": "Enum variable with allowed values and default"
+  },
+
+  "Multiline String": {
+    "prefix": "envx-multiline",
+    "body": [
+      "${1:KEY}=\"\"\"",
+      "${2:Multi-line string content}",
+      "\"\"\"",
+      "",
+      "[${1}]",
+      "type=\"string\"",
+      "required=${3|true,false|}"
+    ],
+    "description": "Multiline string variable with schema"
+  },
+
+  "Conditional Variable": {
+    "prefix": "envx-cond",
+    "body": [
+      "${1:KEY}=${2:\\${CONDITION}} ? \"${3:trueValue}\" : \"${4:falseValue}\""
+    ],
+    "description": "Variable assignment with ternary condition"
+  },
+
+  "Quick Schema": {
+    "prefix": "envx-schema",
+    "body": [
+      "[${1:KEY}]",
+      "type=\"${2|boolean,string,number,url,email,enum|}\"",
+      "required=${3|true,false|}",
+      "default=\"${4}\""
+    ],
+    "description": "Quick schema block with type, required and default"
+  },
+
+  "Type Suggestion (Manual)": {
+    "prefix": "type=",
+    "body": [
+      "type=\"${1|boolean,string,number,url,email,enum|}\""
+    ],
+    "description": "Type field with suggestions"
+  },
+
+  "Required Suggestion": {
+    "prefix": "required=",
+    "body": [
+      "required=${1|true,false|}"
+    ],
+    "description": "Required field with true/false suggestion"
+  },
+
+  "Default Value": {
+    "prefix": "default=",
+    "body": [
+      "default=\"${1:}\""
+    ],
+    "description": "Default value for the variable"
+  }
+}
