@@ -54,10 +54,12 @@ export function useDocumentation() {
   }, []);
 
   const scrollToSection = useCallback((id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-      setActiveSection(id);
+    if (typeof window !== "undefined") {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        setActiveSection(id);
+      }
     }
   }, []);
 
