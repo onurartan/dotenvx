@@ -1,8 +1,9 @@
+"use client"
 import Navbar from "@/components/Navbar";
 
 export default function Notfound() {
   return (
-    <>
+    <div>
       <Navbar />
       <main className="flex flex-col items-center justify-center min-h-screen bg-[#000]  px-6">
         <h1 className="text-9xl font-extrabold tracking-tight ">404</h1>
@@ -18,6 +19,6 @@ export default function Notfound() {
           Go Back Home
         </a>
       </main>
-    </>
+    </div>
   );
 }
