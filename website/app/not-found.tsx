@@ -1,5 +1,5 @@
-// pages/404.js
-import Navbar from '@/components/Navbar';
+"use client";
+import Navbar from "@/components/Navbar";
 
 export default function Custom404() {
   return (
@@ -9,7 +9,8 @@ export default function Custom404() {
         <h1 className="text-9xl font-extrabold tracking-tight ">404</h1>
         <p className="mt-4 text-2xl font-semibold">Page Not Found</p>
         <p className="mt-2 max-w-md text-center text-[#929292]">
-          The page you are looking for might have been removed or is temporarily unavailable.
+          The page you are looking for might have been removed or is temporarily
+          unavailable.
         </p>
         <a
           href="/"

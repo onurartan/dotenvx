@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
-import { useTheme } from "magic-toast";
 import CodePreview from "@/components/home/CodePreview";
 import HeroSection from "@/components/home/HeroSection";
 import Features from "@/components/home/Features";
@@ -14,9 +13,6 @@ import Footer from "@/components/Footer";
 import { SOCIAL_LINKS } from "@/config";
 
 export default function Home() {
-  const { theme } = useTheme();
-  const isDarkMode = theme == "dark";
-
   return (
     <div className={`min-h-screen dark:dark`}>
       <div className="bg-background text-foreground mx-auto">
