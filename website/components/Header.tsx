@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ArrowLeft, Sun, Moon, Menu } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import Link from "next/link";
 import { Sidebar } from "./Sidebar";
 import type { Section } from "@/types/docs";

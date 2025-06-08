@@ -51,7 +51,7 @@ export function useDocumentation() {
 
   const toggleDarkMode = useCallback(() => {
     setTheme(isDarkMode ? "light" : "dark");
-  }, []);
+  }, [isDarkMode]);
 
   const scrollToSection = useCallback((id: string) => {
     if (typeof window !== "undefined") {

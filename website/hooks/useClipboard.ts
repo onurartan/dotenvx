@@ -13,8 +13,12 @@ function useClipboard(timeoutMs = 2000) {
   }, [isCopied, timeoutMs]);
 
   const copy = (text: string, id: string) => {
-    navigator.clipboard.writeText(text);
-    setIsCopied(id);
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setIsCopied(id);
+    } else {
+      console.warn("Clipboard API not available");
+    }
   };
 
   return { isCopied, copy };

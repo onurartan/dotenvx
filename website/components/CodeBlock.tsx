@@ -4,10 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Copy, Check } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import {
-  oneDark,
-  oneLight,
-} from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { CodeBlockProps } from "@/types/docs";
 import { transparentOneDark } from "@/constants";
 
@@ -81,7 +77,7 @@ export function CodeBlock({
             minWidth: "2rem",
           }}
         >
-          {children}
+          {String(children)}
         </SyntaxHighlighter>
       </CardContent>
     </Card>
