@@ -1,7 +1,6 @@
-"use client";
 import Navbar from "@/components/Navbar";
 
-export default function Custom404() {
+export default function Notfound() {
   return (
     <>
       <Navbar />

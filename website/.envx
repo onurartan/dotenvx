@@ -1,2 +1,0 @@
-LOCAL=true
-BASE_URL=${LOCAL} ? "http://localhost:3000" : "https://dotenvx.trymagic.xyz"

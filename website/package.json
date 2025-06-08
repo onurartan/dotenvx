@@ -17,7 +17,6 @@
     "@trymagic/toast": "^0.1.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dotenvxjs": "^0.0.102",
     "lucide-react": "^0.513.0",
     "magic-toast": "^0.0.32",
     "next": "15.3.3",
