@@ -1,0 +1,9 @@
+{
+     "iconThemes": [
+      {
+        "id": "envx-icons",
+        "label": "EnvX Icons",
+        "path": "./icon-theme.json"
+      }
+    ]
+}

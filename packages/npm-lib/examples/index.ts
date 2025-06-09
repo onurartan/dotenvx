@@ -23,3 +23,9 @@ console.log("NODE_ENV: ", process.env.NODE_ENV);
 
 console.log("WEBSITE_URL: ", env.WEBSITE_URL);
 console.log("BASE: ", env.BASE);
+
+if (env.DEV_MODE == false) {
+  console.log("DEV_MODE=false");
+} else {
+  console.log("DEV_MODE=true");
+}

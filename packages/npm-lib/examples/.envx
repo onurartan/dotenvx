@@ -1,3 +1,7 @@
+# Extension Name “Envx for VSCode”
+# With “Generate .env file” you can convert .envx file to .env file
+# vscode -> Command Palette > Dotenvx: Generate .env file to convert to .env
+# vscode -> Command Palette > Dotenvx: Generate Types File to create types
 DEV_MODE=false
 
 API_URL=${DEV_MODE} ? "http://localhost:3000" : "https://api.example.com"
@@ -12,18 +16,10 @@ I am .ENVX the best .env alternative, now you understand me!
 """
 
 WEBSITE_URL="https://movixar.com"
-
-
-PREFIX="api"
-SUFFIX="v1"
-NESTED_URL="https://${PREFIX}.example.com/${SUFFIX}"
-
-ENV="development"
-BASE=${ENV} == "development" ? "http://localhost:3000" : "https://api.example.com"
+BASE=${NODE_ENV} == "development" ? "http://localhost:3000" : "https://api.example.com"
 AUTH_URL="${BASE}/auth"
-USER_URL="${BASE}/users"
 
-# schema herzaman en alta yazılır
+# schema is always written at the bottom
 [DEV_MODE]
 type="boolean"
 
@@ -32,11 +28,9 @@ type="number"
 required=true
 description="PORT number"
 
-# hata vericek çünkü required ve yok ayrıca deprecated oldugu için uyarı mesajı bulunmakta :)
 [WEBSITE_URL]
 type="url"
 required= true
-deprecated=true
 
 [NODE_ENV]
 type="enum"
@@ -45,7 +39,6 @@ default="development"
 required=true
 # deprecated=true
 
-# required olmasına ve envx dosyası içinde argumanı olmamasına ragmen hata vermiyecek çunku default value belirlenmiş :)
 [ANY_ARG2]
 type="string"
 default="any value"

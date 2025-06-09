@@ -13,7 +13,7 @@
     "env"
   ],
   "description": "Syntax highlighting and snippets for .envx files",
-  "version": "0.0.102",
+  "version": "0.0.103",
   "publisher": "Trymagic",
   "engines": {
     "vscode": "^1.100.0"
@@ -28,15 +28,34 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "activationEvents": [
-      "onLanguage:envx"
-    ],
-    "iconThemes": [
+    "commands": [
       {
-        "id": "envx-icons",
-        "label": "EnvX Icons",
-        "path": "./icon-theme.json"
+        "command": "dotenvx.generateEnv",
+        "title": "Dotenvx: Generate .env file"
+      },
+      {
+        "command": "dotenvx.generateTypes",
+        "title": "Dotenvx: Generate Types File"
       }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "dotenvx.generateEnv",
+          "when": "resourceExtname == .envx",
+          "group": "navigation"
+        },
+        {
+          "command": "dotenvx.generateTypes",
+          "when": "resourceExtname == .envx",
+          "group": "navigation"
+        }
+      ]
+    },
+    "activationEvents": [
+      "onLanguage:envx",
+      "onCommand:dotenvx.generateEnv",
+      "onCommand:dotenvx.generateTypes"
     ],
     "languages": [
       {
