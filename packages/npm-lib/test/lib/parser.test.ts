@@ -40,6 +40,17 @@ describe("parseEnvx", () => {
     );
   });
 
+  it("should give an error if the schema key contains a special character", () => {
+    const content = `
+      API_KEY="abc123"
+
+      [API KEY]
+    `;
+    expect(() => parseEnvx(content)).toThrow(
+      /contains invalid characters. Only letters, numbers, underscore and hyphen are allowed/i
+    );
+  });
+
   it("gives an error if the schema is defined twice with the same key value", () => {
     const content = `
       API_KEY="abc123"
@@ -91,13 +102,11 @@ describe("parseEnvx", () => {
     );
   });
 
-
   it("should throw error if '=' delimiter is missing", () => {
-  const content = `
+    const content = `
     INVALID_LINE
   `;
 
-  expect(() => parseEnvx(content)).toThrow(/missing "="/i);
-});
-
+    expect(() => parseEnvx(content)).toThrow(/missing "="/i);
+  });
 });

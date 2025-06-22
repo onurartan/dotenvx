@@ -83,30 +83,138 @@ export const sections: Section[] = [
 export const cliCommands: CLICommand[] = [
   {
     name: "build",
-    description: "Validates your .envx file and generates TypeScript types",
-    usage: "npx dotenvx build",
+    description:
+      "Validates the .envx file and generates the .env output and metadata",
+    usage: "npx dotenvxjs build",
     options: [
       {
-        name: "--output",
-        description: "Output directory for generated files",
-        default: "./types",
+        name: "-i, --input <file>",
+        description: "Path to the input .envx file",
+        default: ".envx",
+      },
+      {
+        name: "-o, --output <file>",
+        description: "Path to the generated .env file",
+        default: ".env",
+      },
+      {
+        name: "-m, --metaFilePath <file>",
+        description: "Path to output the .envx.meta.json file",
+        default: "envx.ts",
+      },
+      {
+        name: "--overwrite",
+        description: "Force overwrite of existing output files",
+        default: "false",
+      },
+    ],
+  },
+  {
+    name: "generate",
+    description:
+      "Generates .env, TypeScript types, and .envx.meta.json in a single command",
+    usage: "npx dotenvxjs generate",
+    options: [
+      {
+        name: "-i, --input <file>",
+        description: "Path to the input .envx file",
+        default: ".envx",
+      },
+      {
+        name: "-o, --output <file>",
+        description: "Path to the generated .env file",
+        default: ".env",
+      },
+      {
+        name: "-t, --typesOutput <file>",
+        description: "Path to the generated TypeScript definition file",
+        default: "envx.ts",
+      },
+      {
+        name: "-m, --metaFilePath <path>",
+        description: "Directory where .envx.meta.json will be saved",
+        default: ".",
+      },
+      {
+        name: "--overwrite",
+        description: "Force overwrite of existing output files",
+        default: "false",
+      },
+    ],
+  },
+  {
+    name: "watch",
+    description:
+      "Watches for changes and automatically regenerates .env, types, and metadata",
+    usage: "npx dotenvxjs watch",
+    options: [
+      {
+        name: "-i, --input <file>",
+        description: "Path to the input .envx file",
+        default: ".envx",
+      },
+      {
+        name: "-o, --output <file>",
+        description: "Path to the generated .env file",
+        default: ".env",
+      },
+      {
+        name: "-t, --typesOutput <file>",
+        description: "Path to the generated TypeScript definition file",
+        default: "envx.ts",
+      },
+      {
+        name: "-m, --metaFilePath <path>",
+        description: "Directory where .envx.meta.json will be saved",
+        default: ".",
+      },
+      {
+        name: "--no-types",
+        description: "Skip TypeScript type generation",
+        default: "false",
+      },
+      {
+        name: "--no-build",
+        description: "Skip .env file generation",
+        default: "false",
+      },
+      {
+        name: "--silent",
+        description: "Suppress CLI output",
+        default: "false",
       },
     ],
   },
   {
     name: "check",
-    description: "Validates your .envx file against the defined schema",
-    usage: "npx dotenvx check",
-    options: [],
+    description: "Validates the .envx file against the schema definition",
+    usage: "npx dotenvxjs check",
+    options: [
+      {
+        name: "-i, --input <file>",
+        description: "Path to the input .envx file",
+        default: ".envx",
+      },
+    ],
   },
   {
     name: "types",
-    description: "Generates TypeScript type definitions from your schema",
-    usage: "npx dotenvx types",
+    description: "Generates TypeScript definitions based on the .envx schema",
+    usage: "npx dotenvxjs types",
     options: [
       {
-        name: "--output",
-        description: "Output file path",
+        name: "-i, --input <file>",
+        description: "Path to the input .envx file",
+        default: ".envx",
+      },
+      {
+        name: "-o, --output <file>",
+        description: "Path to the generated TypeScript file",
+        default: "envx.ts",
+      },
+      {
+        name: "-m, --metaFilePath <file>",
+        description: "Path to output the .envx.meta.json file",
         default: "envx.ts",
       },
     ],
@@ -163,18 +271,42 @@ default="development"
 required=true
 description="Application environment"`,
 
-  basicUsage: `import { loadEnvx, getEnvx } from '${PACKAGE_NAME}';
+  basicUsage: `import { loadEnvx, getEnvx, getEnv } from '${PACKAGE_NAME}';
+import { Envx } from './envx.ts';
 
-// > npx dotenvx types
-import {Envx} from "./envx.ts";
-
-// Loading and validating environment variables for use with process.env
+// Load and validate environment variables from .envx into process.env
 loadEnvx();
 
-// Type-safe access with getEnvx
-const env = getEnvx<Envx>();
-console.log(env.PORT); // TypeScript knows this is a number
-console.log(env.DEV_MODE); // TypeScript knows this is a boolean`,
+// ✅ getEnvx(): Use when you want to read and validate from .envx directly at runtime.
+// You can use it during development or in production **if you include .envx** in your server.
+// Warning: not all platforms (e.g. Vercel, Docker) support .envx natively.
+const envxEnv = getEnvx<Envx>();
+console.log(envxEnv.PORT);      // Type: number
+console.log(envxEnv.DEV_MODE);  // Type: boolean
+
+// ✅ getEnv(): Recommended for production use.
+// Reads from standard .env files, but still provides full type safety using the
+// precompiled \`.envx.meta.json\` file generated during build.
+const env = getEnv();
+console.log(env.API_URL);       // Inferred as string
+console.log(env.PORT + 1000);   // Inferred as number
+
+/* 
+🏁 Which one should you use?
+
+- getEnvx():
+  - Reads directly from .envx at runtime
+  - Performs full validation and supports advanced features like interpolation and schema-based types
+  - Only use in production **if you deploy .envx to your server**
+
+- getEnv():
+  - Reads from .env only
+  - No runtime validation (faster, safer for production)
+  - Requires a valid \`.envx.meta.json\` file generated via \`npx dotenvxjs types\`
+  - Ideal for production: works seamlessly with Docker, CI/CD, Vercel, etc.
+*/
+
+`,
 
   envxSyntax: `# Basic variable assignment
 KEY="value"
@@ -286,28 +418,83 @@ USER_URL="\${BASE}/users"
   // CONFIG=\${STAGE} == "dev" ? "dev-config" : \${STAGE} == "test" ? "test-config" : "prod-config"
 
   typescript: `// 1. Generate TypeScript types from your schema
-// Run: npx dotenvx types --output env.ts
+// Run: npx dotenvxjs types --output env.ts
 
 // 2. The generated envx.ts file will look like:
-  interface Envx {
-    PORT: number;
-    API_URL: string;
-    DEV_MODE: boolean;
-    NODE_ENV: 'development' | 'production' | 'test' | 'staging';
-    // ... other variables from your schema
-  }
+interface Envx {
+  PORT: number;
+  API_URL: string;
+  DEV_MODE: boolean;
+  NODE_ENV: 'development' | 'production' | 'test' | 'staging';
+  // ... other variables from your schema
+}
 
-// 3. Use in your TypeScript code
-import { loadEnvx, getEnvx } from '${PACKAGE_NAME}';
-import {Envx} from "./envx.ts";
+// 3. Usage in your TypeScript code
+import { loadEnvx, getEnvx, getEnv } from '${PACKAGE_NAME}';
+import { Envx } from './envx.ts';
 
-// Load and validate environment variables
+// Load and validate environment variables from .envx into process.env
 loadEnvx();
 
-// Type-safe access to all environment variables
-const env = getEnvx<Envx>();
-const nodeEnv: 'development' | 'production' | 'test' | 'staging' = env.NODE_ENV;`,
+// ✅ getEnvx():
+// Reads directly from .envx with full schema validation at runtime
+// Suitable for development or production ONLY IF you deploy .envx files
+const envxEnv = getEnvx<Envx>();
+const nodeEnvx: 'development' | 'production' | 'test' | 'staging' = envxEnv.NODE_ENV;
 
+// ✅ getEnv():
+// Reads from .env files, no runtime validation
+// Type safety is inferred from the precompiled \`.envx.meta.json\`
+// Recommended for production for better performance and compatibility
+const env = getEnv();
+const nodeEnv: 'development' | 'production' | 'test' | 'staging' = env.NODE_ENV;
+
+/* 
+🏁 Which method to use?
+
+- getEnvx():
+  - Runtime reads from .envx with full validation
+  - Use if .envx files are present on the server
+
+- getEnv():
+  - Reads from .env only, no runtime validation
+  - Requires \`.envx.meta.json\` generated at build time
+  - Ideal for production environments (Docker, CI/CD, Vercel, etc.)
+*/
+
+`,
+
+  getEnv: `// 🏭 Production-ready, schema-aware environment access
+
+// In production environments, it is often safer and more performant to use
+// traditional \`.env\` files instead of \`.envx\` files.
+// The \`getEnv()\` function reads environment variables from \`.env\` files,
+// not \`.envx\`, but still provides strong type safety by leveraging
+// the precompiled \`.envx.meta.json\` schema generated at build time.
+
+import { getEnv } from '${PACKAGE_NAME}';
+
+const env = getEnv();
+
+console.log(env.API_URL);       // TypeScript infers this as string
+console.log(env.PORT + 1000);   // TypeScript infers this as number
+console.log(env.DEV_MODE);      // TypeScript infers this as boolean
+
+// ✅ Why use getEnv() in production?
+
+// - Reads variables only from \`.env\` files, avoiding \`.envx\` parsing at runtime.
+// - No runtime schema parsing or validation, improving startup performance.
+// - TypeScript types are inferred from the precompiled \`.envx.meta.json\` file,
+//   ensuring type safety without runtime overhead.
+// - Fully compatible with production deployment environments such as Docker,
+//   CI/CD pipelines, and serverless platforms where runtime validation is undesirable.
+
+// 🔧 Usage recommendations:
+// - Use \`getEnvx()\` during development or if you need runtime validation and you
+//   deploy \`.envx\` files on the server.
+// - Use \`getEnv()\` in production to maximize performance, security, and compatibility.
+
+`,
   examples: {
     nextjs: `// Next.js example
 // In your .envx file

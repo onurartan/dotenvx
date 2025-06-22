@@ -4,9 +4,10 @@
 
 module.exports = {
   input: "./examples/.envx",
-  output: {
+  outputs: {
     env: "./examples/.env",
     types: "./examples/envx.ts",
+    metaFilePath: "./examples/", // Only Folder path (not include file name)
   },
   overwrite: true,
 };

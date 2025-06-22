@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "../../shared/errors";
-import { EnvError, EnvSchema } from "../types";
+import { EnvxError, EnvSchema } from "../types";
 import { toBoolean } from "../utils";
 
 type EnvMap = Record<string, any>;
@@ -43,7 +43,7 @@ export function resolveEnvx(
         //     `→ Define "${key}" in your .envx file or provide a default value in the schema.`
         // );
 
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.resolver.requiredMissingInResolve(key)
         );
       }
@@ -67,7 +67,7 @@ function resolveValue(
     //   `[envx:error] Circular dependency detected while resolving "${currentKey}".\n` +
     //     `→ Check for variables referencing each other in a loop.`
     // );
-    throw new EnvError(
+    throw new EnvxError(
       ERROR_MESSAGES.lib.resolver.circularDependency(currentKey)
     );
   }
@@ -110,7 +110,7 @@ function resolveInterpolation(
     //   `[envx:error] Failed to resolve variable "${name}". No value found for interpolation.`
     // );
 
-    throw new EnvError(ERROR_MESSAGES.lib.resolver.interpolationFailed(name));
+    throw new EnvxError(ERROR_MESSAGES.lib.resolver.interpolationFailed(name));
   });
 }
 

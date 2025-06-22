@@ -48,41 +48,56 @@ const features = [
 
 const configFileSteps = [
   {
-    title: "Create envx.config.js",
+    title: "1. Create envx.config.js",
     description:
-      "Create an `envx.config.js` file in your project root to customize dotenvx CLI behavior.",
+      "Add an `envx.config.js` file in your project root to customize the default behavior of the dotenvx CLI.",
     code: `module.exports = {
   input: "./.envx",      // Path to your .envx file
   output: {
-    env: "./.env",       // Output path for generated .env file
-    types: "./envx.ts",  // Output path for generated TypeScript types
+    env: "./.env",       // Path for generated .env file
+    types: "./envx.ts",  // Path for generated TypeScript definitions
+    metaFilePath: "./example/", // Folder path for .envx.meta.json
   },
-  overwrite: true,                // Overwrite output files if they exist
+  overwrite: true,       // Overwrite output files if they already exist
 };`,
     language: "javascript",
   },
   {
-    title: "How dotenvx CLI uses envx.config.js",
+    title: "2. Run CLI commands using the config",
     description:
-      "When you run commands like `npx dotenvx build`, the CLI automatically loads this config file and uses its settings for input, output, and overwrite options.",
-    code: "npx dotenvx build",
+      "Once your config is set up, you can run all CLI commands without specifying flags. dotenvx will use the default values from `envx.config.js`.",
+    code: `npx dotenvx build       # Generates .env from your .envx file
+npx dotenvx check       # Validates .envx against its schema
+npx dotenvx types       # Generates TypeScript definitions
+npx dotenvx generate    # Generates .env, types, and metadata together
+npx dotenvx watch       # Watches for changes and regenerates outputs automatically`,
     language: "bash",
   },
+
   {
-    title: "Run CLI commands with config",
+    title: "3. Override config options (if needed)",
     description:
-      "Now you can simply run commands without extra flags, as dotenvx will use your config defaults:",
-    code: `npx dotenvx build    # Generates .env from your .envx based on config
-npx dotenvx check    # Validates your .envx file using the config
-npx dotenvx types    # Generates TypeScript types according to config`,
-    language: "bash",
-  },
-  {
-    title: "Override config options (optional)",
-    description:
-      "You can still override config values directly via CLI flags if needed, e.g.:",
+      "You can override any config values directly via CLI flags. This is useful for one-off scenarios.",
     code: `npx dotenvx build --input ./custom/.envx --output ./custom/.env`,
     language: "bash",
+  },
+  {
+    title: "4. Watch for changes (auto-regenerate)",
+    description:
+      "Use the `watch` command to monitor your .envx file and automatically regenerate .env, types, and metadata files on change.",
+    code: `npx dotenvx watch`,
+    language: "bash",
+  },
+  {
+    title: "5. Access variables at runtime with getEnv()",
+    description:
+      "Use `getEnv()` to safely access parsed and type-safe environment variables at runtime.",
+    code: `import { getEnv } from "dotenvx";
+
+const env = getEnv();
+
+console.log(env.API_URL);`,
+    language: "typescript",
   },
 ];
 
@@ -279,6 +294,22 @@ export default function DocsPage() {
                     </CodeBlock>
                   </div>
 
+                  <CodeBlock
+                    title="getEnv() usage"
+                    language="typescript"
+                    id="getenv-usage"
+                    darkMode={darkMode}
+                    copied={copied}
+                    onCopy={copyToClipboard}
+                  >
+                    {`import { getEnv } from "dotenvxjs";
+
+// Loads and validates using .envx.meta.json at runtime
+const env = getEnv();
+
+console.log(env.PORT);`}
+                  </CodeBlock>
+
                   <Alert className="border-green-500/20 bg-green-500/5">
                     <CheckCircle className="h-4 w-4 text-green-500" />
                     <AlertTitle>Benefits</AlertTitle>
@@ -418,6 +449,19 @@ export default function DocsPage() {
                     </AlertDescription>
                   </Alert>
 
+                  <Alert className="border-gray-500/20 bg-gray-500/5">
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <AlertTitle>What is .envx.meta.json?</AlertTitle>
+                    <AlertDescription>
+                      The <code>.envx.meta.json</code> file is a
+                      machine-readable output that contains schema definitions,
+                      default values, and metadata compiled from your{" "}
+                      <code>.envx</code> file. It's primarily used by the{" "}
+                      <code>getEnv()</code> function during runtime to ensure
+                      proper typing and validation.
+                    </AlertDescription>
+                  </Alert>
+
                   <div className="flex justify-end">
                     <Button
                       onClick={() => scrollToSection("interpolation")}
@@ -462,6 +506,53 @@ export default function DocsPage() {
                       configurations from simple building blocks. Ternary
                       expressions enable environment-specific settings without
                       duplicating configuration files.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => scrollToSection("typescript")}
+                      variant="outline"
+                    >
+                      Next: TypeScript Integration
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </section>
+
+              <Separator className="my-16" />
+
+              {/* Production Usage */}
+              <section>
+                <SectionHeader
+                  id="production"
+                  title="Production Usage"
+                  description="Use getEnv() for fast, safe, type-aware environment access in production."
+                  icon={<Code className="w-5 h-5" />}
+                  setSectionRef={setSectionRef}
+                />
+
+                <div className="space-y-8 mt-8">
+                  <CodeBlock
+                    title="production-env.ts"
+                    language="typescript"
+                    id="production-env"
+                    darkMode={darkMode}
+                    copied={copied}
+                    onCopy={copyToClipboard}
+                  >
+                    {codeExamples.getEnv}
+                  </CodeBlock>
+
+                  <Alert className="border-green-500/20 bg-green-500/5">
+                    <Code className="h-4 w-4 text-green-500" />
+                    <AlertTitle>Optimized for Production</AlertTitle>
+                    <AlertDescription className="">
+                      getEnv() reads from .env (not .envx) and relies on the
+                      precompiled .envx.meta.json file for fast startup and full
+                      type-safety—perfect for Docker, CI/CD, and cloud
+                      deployments.
                     </AlertDescription>
                   </Alert>
 

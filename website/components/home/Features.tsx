@@ -22,9 +22,9 @@ const features = [
     icon: <FileText className="w-6 h-6" />,
     title: ".envx File Format",
     description:
-      "A type-safe, expressive configuration format with schema support and dynamic logic.",
+      "Type-safe, expressive config format with schema, validation, and dynamic logic support.",
     color: "from-blue-500 to-cyan-500",
-    demo: `# .envx file example
+    demo: `# .envx example
 API_URL=\${DEV} ? "localhost" : "prod.com"
 
 [API_URL]
@@ -35,34 +35,36 @@ required=true`,
     icon: <Code className="w-6 h-6" />,
     title: "dotenvx Library",
     description:
-      "TypeScript library that reads .envx files and provides type-safe environment variable access.",
+      "TypeScript library to read .envx files with full schema validation and type safety.",
     color: "from-purple-500 to-pink-500",
-    demo: `import { loadEnvx, getEnvx } from '${PACKAGE_NAME}'
-  // > npx dotenvx types
-  import { Envx } from './envx.ts'
+    demo: `import { loadEnvx, getEnvx, getEnv } from '${PACKAGE_NAME}'
+import { Envx } from './envx.ts'
 
-loadEnvx()
-const url = process.env.API_URL
+loadEnvx() // Loads and validates .envx files during development
 
-const env = getEnvx<Envx>()
-`,
+const env = getEnvx<Envx>() // Use in dev or when .envx is available
+
+// For production:
+// 1) Run \`npx dotenvx generate\` to create a standard .env file and .envx.meta.json schema
+// 2) Use getEnv() to read from .env with type safety (no runtime validation)
+const prodEnv = getEnv<Envx>()`,
   },
   {
     icon: <Zap className="w-6 h-6" />,
     title: "Schema Validation",
     description:
-      "Define types, constraints, and validation rules directly in your .envx file.",
+      "Define types, constraints, and validation rules inside your .envx file.",
     color: "from-orange-500 to-red-500",
     demo: `[PORT]
 type="number"
-depracted=true
+deprecated=true
 required=true`,
   },
   {
     icon: <Puzzle className="w-6 h-6" />,
     title: "Variable Interpolation",
     description:
-      "Reference other variables and use ternary expressions for dynamic configuration.",
+      "Use other variables and ternary expressions for dynamic environment values.",
     color: "from-green-500 to-emerald-500",
     demo: `BASE_URL="https://api.com"
 API_URL="\${BASE_URL}/v1"
@@ -72,26 +74,30 @@ KEY=\${DEV} ? "dev-key" : "prod-key"`,
     icon: <Terminal className="w-6 h-6" />,
     title: "Powerful CLI",
     description:
-      "Command-line tools for validation, type generation, and .env file conversion.",
+      "Tools for validation, type generation, and converting .envx to .env files.",
     color: "from-indigo-500 to-purple-500",
     demo: `npx dotenvx check
 npx dotenvx types
-npx dotenvx build`,
+npx dotenvx build
+npx dotenvx generate
+npx dotenvx watch`,
   },
   {
     icon: <Sparkles className="w-6 h-6" />,
     title: "TypeScript Integration",
     description:
-      "Automatic TypeScript type generation from your .envx schema definitions.",
+      "Auto-generates TypeScript types from your .envx schema for type-safe access.",
     color: "from-yellow-500 to-orange-500",
     demo: `// Auto-generated types
 // > npx dotenvx types
-import {Envx} from "./envx.ts";
-import { getEnvx } from "${PACKAGE_NAME}";
+import { Envx } from "./envx.ts";
+import { getEnvx, getEnv } from "${PACKAGE_NAME}";
 
-const envx = getEnvx<Envx>()
-const port: number = envx.PORT
-const url: string = envx.API_URL`,
+const envDev = getEnvx<Envx>()  // Development: full validation and .envx support
+const port: number = envDev.PORT
+const url: string = envDev.API_URL
+
+const envProd = getEnv<Envx>()  // Production: reads .env with type safety via .envx.meta.json`,
   },
 ];
 
@@ -119,7 +125,7 @@ const Features = () => {
               className="group relative overflow-hidden border-0 bg-gradient-to-br from-background to-muted/30 hover:shadow-xl transition-all duration-500 hover:scale-105"
             >
               <div
-                className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
+                className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500 -z-10`}
               />
               <CardHeader className="pb-4">
                 <div
@@ -133,7 +139,7 @@ const Features = () => {
                 <CardDescription className="text-base leading-relaxed">
                   {feature.description}
                 </CardDescription>
-                <div className="rounded-lg bg-muted/50 p-3 border">
+                <div className="rounded-lg bg-muted/50 p-2 border">
                   <SyntaxHighlighter
                     language={
                       feature.title.includes("CLI") ? "bash" : "javascript"

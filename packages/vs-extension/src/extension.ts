@@ -10,11 +10,32 @@ import { generateTypesCommand } from "./core/generateTypesCommand";
 function registerValidation(context: vscode.ExtensionContext) {
   context.subscriptions.push(diagnosticCollection);
 
-  vscode.workspace.onDidOpenTextDocument(validateEnvxDocument);
-  vscode.workspace.onDidChangeTextDocument((e) =>
-    validateEnvxDocument(e.document)
-  );
-  vscode.workspace.textDocuments.forEach(validateEnvxDocument);
+  // vscode.workspace.onDidOpenTextDocument(validateEnvxDocument);
+  // vscode.workspace.onDidChangeTextDocument((e) =>
+  //   validateEnvxDocument(e.document)
+  // );
+  // vscode.workspace.textDocuments.forEach(validateEnvxDocument);
+
+  vscode.workspace.onDidOpenTextDocument((doc) => {
+    if (doc.fileName.endsWith(".envx.meta.json")) {
+      return;
+    }
+    validateEnvxDocument(doc);
+  });
+
+  vscode.workspace.onDidChangeTextDocument((e) => {
+    if (e.document.fileName.endsWith(".envx.meta.json")) {
+      return;
+    }
+    validateEnvxDocument(e.document);
+  });
+
+  vscode.workspace.textDocuments.forEach((doc) => {
+    if (doc.fileName.endsWith(".envx.meta.json")) {
+      return;
+    }
+    validateEnvxDocument(doc);
+  });
 }
 
 function createBoolValueItems(label: string): vscode.CompletionItem[] {

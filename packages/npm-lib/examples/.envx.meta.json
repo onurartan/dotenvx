@@ -1,0 +1,58 @@
+{
+  "DEV_MODE": {
+    "type": "boolean",
+    "required": false
+  },
+  "PORT": {
+    "type": "number",
+    "required": true,
+    "description": "\nPORT number\n"
+  },
+  "WEBSITE_URL": {
+    "type": "url",
+    "required": true
+  },
+  "NODE_ENV": {
+    "type": "enum",
+    "required": true,
+    "values": [
+      "production",
+      "development",
+      "test"
+    ],
+    "default": "development"
+  },
+  "ANY_ARG2": {
+    "type": "string",
+    "required": true,
+    "default": "any value"
+  },
+  "API_URL": {
+    "type": "string",
+    "required": false
+  },
+  "API_TOKEN": {
+    "type": "string",
+    "required": false
+  },
+  "FULL_API_URL": {
+    "type": "string",
+    "required": false
+  },
+  "DATABASE_NAME": {
+    "type": "string",
+    "required": false
+  },
+  "MULTILINE_EXAMPLE": {
+    "type": "string",
+    "required": false
+  },
+  "BASE": {
+    "type": "string",
+    "required": false
+  },
+  "AUTH_URL": {
+    "type": "string",
+    "required": false
+  }
+}

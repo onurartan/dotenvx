@@ -4,7 +4,8 @@
   "patterns": [
     {
       "name": "comment.line.number-sign.envx",
-      "match": "^\\s*#.*$"
+      
+       "match": "#.*$"
     },
     {
       "name": "keyword.other.section.envx",

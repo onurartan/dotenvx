@@ -4,8 +4,10 @@ export class EnvxCodeLensProvider implements vscode.CodeLensProvider {
   onDidChangeCodeLenses?: vscode.Event<void> | undefined;
 
   provideCodeLenses(document: vscode.TextDocument): vscode.CodeLens[] {
-    const isEnvxLike = /(^|\.)(envx)(\..+)?$/.test(document.fileName);
-    if (!isEnvxLike) {
+    const fileName = document.fileName;
+
+    const isEnvxLike = /(^|\.)(envx)(\..+)?$/.test(fileName);
+    if (!isEnvxLike || fileName.endsWith(".meta.json")) {
       return [];
     }
 

@@ -13,7 +13,7 @@
     "env"
   ],
   "description": "Syntax highlighting and snippets for .envx files",
-  "version": "0.0.103",
+  "version": "0.0.104",
   "publisher": "Trymagic",
   "engines": {
     "vscode": "^1.100.0"
@@ -71,6 +71,13 @@
           ".envx.*"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "json",
+        "extensions": [],
+        "filenamePatterns": [
+          ".envx.meta.json"
+        ]
       }
     ],
     "grammars": [

@@ -56,6 +56,28 @@ Once loaded, all validated values are also available in `process.env`.
 
 ---
 
+## Runtime Usage with `.env` + `.envx.meta.json`
+
+For production environments where `.env` files are already built (e.g. via `dotenvx build` or `generate`), you can safely use:
+
+```ts
+import { getEnv } from "dotenvxjs";
+
+// Reads and validates .env + .envx.meta.json
+const env = getEnv();
+
+console.log(env.API_URL); // Typed and validated
+```
+
+This function:
+- **Does not** modify `process.env`
+- Requires both `.env` and `.envx.meta.json`
+- Throws meaningful errors if types or required values don't match
+
+Use this in environments where schema-based safety is still critical, but `.envx` isn’t available (e.g. containers or CI).
+
+---
+
 ## Example .envx File
 
 ```env
@@ -160,6 +182,54 @@ npx dotenvx types
 
 ---
 
+### `npx dotenvx generate`
+
+Generates both `.env` and TypeScript types from your `.envx` file.
+
+```bash
+npx dotenvx generate
+```
+
+#### Options:
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-i, --input` | Input `.envx` file | `.envx` |
+| `-o, --output` | Output `.env` file | `.env` |
+| `-t, --typesOutput` | Output `.ts` typings file | `envx.ts` |
+| `--overwrite` | Overwrite existing output | `false` |
+
+---
+
+### `npx dotenvx watch`
+
+Watches your `.envx` file and auto-generates `.env` and TypeScript types on change.
+
+```bash
+npx dotenvx watch
+```
+
+#### Options:
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--no-types` | Don't generate TypeScript typings | - |
+| `--no-build` | Don't generate `.env` file | - |
+| `--silent` | Suppress all logs | - |
+
+---
+
+## About `.envx.meta.json`
+
+Every time you run `dotenvx build`, `generate`, or `types`, a `.envx.meta.json` file is created.
+
+This file contains the schema as JSON and is used at runtime to validate `.env` files via `getEnv()`.
+
+- Do **not** delete this file in production
+- Can be safely committed or included in deployments
+
+---
+
 ## Configuration File
 
 You can create an optional `envx.config.js` in your project root to provide defaults for CLI options.
@@ -168,9 +238,10 @@ You can create an optional `envx.config.js` in your project root to provide defa
 // envx.config.js
 export default {
   input: ".envx",
-  output: {
+  outputs: {
     env: ".env",
     types: "src/envx.ts",
+    metaFilePath: "./examples/", // Only Folder path (not include file name)
   },
   overwrite: true,
 };
@@ -180,24 +251,15 @@ export default {
 
 ## Type Definitions
 
-If you want to use `envx` with TypeScript safely in your project:
-
-```ts
-// Load config
-loadEnvx();
-
-// Use with TS autocompletion
-const env = getEnvx();
-```
-
 If you're using `npx dotenvx types`, it will auto-generate typings you can import:
 
 ```ts
-import { Env } from "./envx.ts";
+import { Envx } from "./envx.ts";
 
-const env: Env = getEnvx();
+const env = getEnvx<Envx>();
 ```
 
+---
 
 ## Editor Integration
 
@@ -209,10 +271,8 @@ dotenvx is fully compatible with the official VSCode extension for `.envx` files
 - Hover tooltips for schema metadata such as `description` and `deprecated`
 
 > Note: Fields like `description` and `deprecated` are **only used by the VSCode extension for developer experience** and do not affect runtime behavior or validation.
+
 ---
-
-## File Structure Suggestion
-
 
 ## Roadmap
 

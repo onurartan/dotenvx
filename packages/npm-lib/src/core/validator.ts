@@ -1,5 +1,5 @@
 import { ERROR_MESSAGES } from "../../shared/errors";
-import { EnvSchema, EnvResult, EnvType, EnvError } from "../types";
+import { EnvSchema, EnvResult, EnvType, EnvxError } from "../types";
 import { isEmail } from "../utils";
 
 /**
@@ -10,7 +10,7 @@ import { isEmail } from "../utils";
  * @param type - Expected type of the value.
  * @param values - Allowed enum values if type is "enum".
  * @returns Parsed and typed value.
- * @throws {EnvError} When the value doesn't conform to the expected type.
+ * @throws {EnvxError} When the value doesn't conform to the expected type.
  */
 function parseValueByType(
   key: string,
@@ -25,7 +25,7 @@ function parseValueByType(
     case "number": {
       const num = Number(value);
       if (isNaN(num)) {
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.validator.invalidNumber(key, value)
         );
       }
@@ -36,17 +36,19 @@ function parseValueByType(
       const normalized = value.trim().toLowerCase();
       if (normalized === "true") return true;
       if (normalized === "false") return false;
-      throw new EnvError(
+      throw new EnvxError(
         ERROR_MESSAGES.lib.validator.invalidBoolean(key, value)
       );
     }
 
     case "enum": {
       if (!values?.length) {
-        throw new EnvError(ERROR_MESSAGES.lib.validator.missingEnumValues(key));
+        throw new EnvxError(
+          ERROR_MESSAGES.lib.validator.missingEnumValues(key)
+        );
       }
       if (!values.includes(value)) {
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.validator.invalidEnum(key, value, values)
         );
       }
@@ -55,7 +57,7 @@ function parseValueByType(
 
     case "email": {
       if (!isEmail(value)) {
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.validator.invalidEmail(key, value)
         );
       }
@@ -67,12 +69,14 @@ function parseValueByType(
         new URL(value);
         return value;
       } catch {
-        throw new EnvError(ERROR_MESSAGES.lib.validator.invalidUrl(key, value));
+        throw new EnvxError(
+          ERROR_MESSAGES.lib.validator.invalidUrl(key, value)
+        );
       }
     }
 
     default:
-      throw new EnvError(
+      throw new EnvxError(
         ERROR_MESSAGES.lib.validator.unsupportedType(key, type)
       );
   }
@@ -84,7 +88,7 @@ function parseValueByType(
  * @param parsed - Array of parsed env key-value pairs.
  * @param schema - The validation schema defining expected types and requirements.
  * @returns Object with validated and typed environment variables.
- * @throws {EnvError} When required variables are missing or values are invalid.
+ * @throws {EnvxError} When required variables are missing or values are invalid.
  */
 export function validateEnv(
   parsed: { key: string; value: string }[],
@@ -119,7 +123,7 @@ export function validateEnv(
     }
 
     if (required) {
-      throw new EnvError(ERROR_MESSAGES.lib.validator.requiredMissing(key));
+      throw new EnvxError(ERROR_MESSAGES.lib.validator.requiredMissing(key));
     }
   }
 

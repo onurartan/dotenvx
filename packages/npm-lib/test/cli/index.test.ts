@@ -26,4 +26,15 @@ describe("dotenvx CLI", () => {
       }
     );
   }, 18000);
+
+  it("should generate .envx to types and .env file", (done) => {
+    exec(`node ${cliPath} generate`, (error, stdout, stderr) => {
+      console.log(stderr);
+      console.log(stdout);
+      expect(error).toBeNull();
+      expect(stdout).toMatch(/.env build completed/);
+      expect(stdout).toMatch(/Type generation completed/i);
+      done();
+    });
+  }, 15000);
 });

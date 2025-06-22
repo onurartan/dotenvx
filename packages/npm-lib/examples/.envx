@@ -2,31 +2,34 @@
 # With “Generate .env file” you can convert .envx file to .env file
 # vscode -> Command Palette > Dotenvx: Generate .env file to convert to .env
 # vscode -> Command Palette > Dotenvx: Generate Types File to create types
-DEV_MODE=false
+DEV_MODE=true
 
 API_URL=${DEV_MODE} ? "http://localhost:3000" : "https://api.example.com"
 API_TOKEN=${DEV_MODE} ? "dev-token" : "prod-token"
 FULL_API_URL="${API_URL}?token=${API_TOKEN}&env=${NODE_ENV}"
 
-PORT=8080
-DATABASE_NAME="db"
+PORT=8080 # PORT
+DATABASE_NAME="db" # DATABASE NAME
 MULTILINE_EXAMPLE="""
 HELLOOOOOOOO
 I am .ENVX the best .env alternative, now you understand me!
-"""
+""" # dexter morgan bro how are you
 
-WEBSITE_URL="https://movixar.com"
-BASE=${NODE_ENV} == "development" ? "http://localhost:3000" : "https://api.example.com"
+WEBSITE_URL="https://www.movixar.com"
+BASE=${NODE_ENV} == "development" ? "${FULL_API_URL}" : "https://api.example.com"
 AUTH_URL="${BASE}/auth"
 
 # schema is always written at the bottom
 [DEV_MODE]
 type="boolean"
 
-[PORT]  
+[PORT]
 type="number"
 required=true
-description="PORT number"
+description="""
+PORT number 
+"""
+# deprecated=true
 
 [WEBSITE_URL]
 type="url"
@@ -36,7 +39,7 @@ required= true
 type="enum"
 values=["production", "development", "test"]
 default="development"
-required=true
+required="true"
 # deprecated=true
 
 [ANY_ARG2]

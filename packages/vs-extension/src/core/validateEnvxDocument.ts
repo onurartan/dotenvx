@@ -15,7 +15,7 @@ function createDiagnostic(
   return new vscode.Diagnostic(range, message, severity);
 }
 
-function validateSections(
+function validateSchemas(
   lines: string[],
   document: vscode.TextDocument,
   diagnostics: vscode.Diagnostic[],
@@ -23,9 +23,36 @@ function validateSections(
 ) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    const match = line.match(/^\[(.+)\]$/);
+
+    const lineWithoutComment = line.split("#")[0].trim();
+
+    const match = lineWithoutComment.match(/^\[(.+)\]$/);
     if (match) {
       const key = match[1];
+
+      const commentIndex = line.indexOf("#");
+      if (commentIndex > -1 && commentIndex > line.indexOf("]")) {
+        diagnostics.push(
+          createDiagnostic(
+            document,
+            i,
+            `Schema header line cannot contain inline comments after the closing bracket ']'. Remove the '#' and following text.`,
+            vscode.DiagnosticSeverity.Error
+          )
+        );
+      }
+
+      if (!/^[a-zA-Z0-9_]+$/.test(key)) {
+        diagnostics.push(
+          createDiagnostic(
+            document,
+            i,
+            `Invalid schema key "${key}". Only letters, numbers, and underscore (_) are allowed.`,
+            vscode.DiagnosticSeverity.Error
+          )
+        );
+      }
+
       if (seenSchemaKeys.has(key)) {
         diagnostics.push(
           createDiagnostic(
@@ -359,7 +386,7 @@ export function validateEnvxDocument(document: vscode.TextDocument) {
   >();
   const seenSchemaKeys = new Map<string, number>();
 
-  validateSections(lines, document, diagnostics, seenSchemaKeys);
+  validateSchemas(lines, document, diagnostics, seenSchemaKeys);
   validateKeyValuePairs(
     lines,
     document,

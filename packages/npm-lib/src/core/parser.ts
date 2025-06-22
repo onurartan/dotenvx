@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES } from "../../shared/errors";
 import { allowedSchemaTypes } from "../config";
-import { EnvError, EnvSchema, EnvVarSchema } from "../types";
+import { EnvxError, EnvSchema, EnvVarSchema } from "../types";
 
 interface ParsedLine {
   key: string;
@@ -32,7 +32,7 @@ interface ParseResult {
  * @param {string} content - Raw contents of the `.envx` file.
  * @returns {{ env: ParsedLine[], schema: EnvSchema }} Parsed environment variables and associated schema definitions.
  *
- * @throws {EnvError} If the syntax is invalid or required attributes are missing.
+ * @throws {EnvxError} If the syntax is invalid or required attributes are missing.
  */
 export function parseEnvx(content: string): ParseResult {
   const lines = content.split(/\r?\n/);
@@ -44,7 +44,13 @@ export function parseEnvx(content: string): ParseResult {
   let multilineBuffer: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const originalLine = lines[i];
+    let originalLine = lines[i];
+
+    // is Have Comment
+    const commentIndex = originalLine.indexOf("#");
+    if (commentIndex != -1) {
+      originalLine = originalLine.slice(0, commentIndex);
+    }
     const trimmedLine = originalLine.trim();
 
     if (!trimmedLine || trimmedLine.startsWith("#")) continue;
@@ -62,12 +68,25 @@ export function parseEnvx(content: string): ParseResult {
     }
 
     if (isSchemaHeader(trimmedLine)) {
+      if (commentIndex > -1 && commentIndex > originalLine.indexOf("]")) {
+        throw new EnvxError(
+          `[envx:error] Line ${
+            i + 1
+          }: Schema header line cannot contain inline comments.`
+        );
+      }
       currentSchemaKey = parseSchemaHeader(trimmedLine, i, schema);
       continue;
     }
 
     if (currentSchemaKey) {
-      parseSchemaLine(trimmedLine, i, schema[currentSchemaKey]);
+      parseSchemaLine(trimmedLine, i, schema[currentSchemaKey], () => {
+        i++;
+        if (i >= lines.length) return null;
+        let nextLine = lines[i].trim();
+        // yorumları temizleme, boşlukları ayıklama burada olabilir
+        return nextLine;
+      });
       continue;
     }
 
@@ -89,21 +108,31 @@ function parseSchemaHeader(
   schema: EnvSchema
 ): string {
   const key = line.slice(1, -1).trim();
+
   if (!key) {
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${lineNumber + 1}: Schema block name cannot be empty.`
     // );
-    throw new EnvError(ERROR_MESSAGES.lib.parser.schemaBlockEmpty(lineNumber));
+    throw new EnvxError(ERROR_MESSAGES.lib.parser.schemaBlockEmpty(lineNumber));
+  }
+
+  // >_ Key can only be alphanumeric, underscore or hyphen
+  if (!/^[A-Za-z0-9_-]+$/.test(key)) {
+    throw new EnvxError(
+      `[envx:error] Line ${
+        lineNumber + 1
+      }: Schema block name "${key}" contains invalid characters. Only letters, numbers, underscore and hyphen are allowed.`
+    );
   }
 
   if (schema[key]) {
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${
     //     lineNumber + 1
     //   }: Schema key "${key}" is already defined. Duplicate schema definitions are not allowed.`
     // );
 
-    throw new EnvError(
+    throw new EnvxError(
       ERROR_MESSAGES.lib.parser.schemaKeyDuplicate(lineNumber, key)
     );
   }
@@ -121,16 +150,50 @@ function parseSchemaHeader(
  * @param {number} lineNumber - Current line number (zero-based).
  * @param {EnvVarSchema} target - Target schema object for this variable.
  *
- * @throws {EnvError} For unknown keys or invalid value formats.
+ * @throws {EnvxError} For unknown keys or invalid value formats.
  */
 function parseSchemaLine(
   line: string,
   lineNumber: number,
-  target: EnvVarSchema
+  target: EnvVarSchema,
+  getNextLine?: () => string | null
 ) {
   const [rawKey, rawValue] = splitKeyValue(line, lineNumber);
   const key = rawKey.trim();
   const value: any = stripQuotes(rawValue.trim());
+
+  if (key === "description" && rawValue.trim().startsWith('"""')) {
+    let descLines = [];
+    let currentLine = rawValue.trim().slice(3); // """ sonrası satır içeriği
+
+    // Eğer satır aynı zamanda """ ile bitiyorsa, tek satırlık multiline
+    if (currentLine.endsWith('"""')) {
+      currentLine = currentLine.slice(0, -3);
+      target.description = currentLine;
+      return;
+    }
+
+    descLines.push(currentLine);
+
+    // getNextLine fonksiyonu verilmişse, multiline devam eden satırları oku
+    while (getNextLine) {
+      const nextLine = getNextLine();
+      if (nextLine === null) {
+        throw new EnvxError(
+          `Line ${lineNumber + 1}: Unterminated multiline description.`
+        );
+      }
+      if (nextLine.endsWith('"""')) {
+        descLines.push(nextLine.slice(0, -3));
+        break;
+      } else {
+        descLines.push(nextLine);
+      }
+    }
+
+    target.description = descLines.join("\n");
+    return;
+  }
 
   switch (key) {
     case "required":
@@ -139,21 +202,21 @@ function parseSchemaLine(
 
     case "type":
       if (target.type !== undefined) {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${
         //     lineNumber + 1
         //   }: "type" is already defined for this variable. You cannot redefine it.`
         // );
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.parser.typeAlreadyDefined(lineNumber)
         );
       }
       if (!allowedSchemaTypes.includes(value)) {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${lineNumber + 1}: Unsupported type "${value}".`
         // );
 
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.unsupportedType(lineNumber, value)
         );
       }
@@ -171,7 +234,7 @@ function parseSchemaLine(
           !Array.isArray(parsed) ||
           !parsed.every((v) => typeof v === "string")
         ) {
-          throw new EnvError(
+          throw new EnvxError(
             `[envx:error] Line ${
               lineNumber + 1
             }: The parsed "values" field must be an array of strings. ` +
@@ -180,13 +243,13 @@ function parseSchemaLine(
         }
         target.values = parsed;
       } catch {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${
         //     lineNumber + 1
         //   }: "values" must be a valid JSON string array.`
         // );
 
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.parser.invalidValuesJson(lineNumber)
         );
       }
@@ -200,10 +263,10 @@ function parseSchemaLine(
       break;
 
     default:
-      throw new EnvError(
+      throw new EnvxError(
         ERROR_MESSAGES.lib.parser.unknownSchemaProperty(lineNumber, key)
       );
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${lineNumber + 1}: Unknown schema property "${key}".`
     // );
   }
@@ -217,12 +280,12 @@ function isSchemaHeader(line: string): boolean {
 function applyDefault(value: string, lineNumber: number, target: EnvVarSchema) {
   const { type, values } = target;
   if (!type) {
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${
     //     lineNumber + 1
     //   }: "type" must be defined before "default".`
     // );
-    throw new EnvError(
+    throw new EnvxError(
       ERROR_MESSAGES.lib.parser.typeRequiredBeforeDefault(lineNumber)
     );
   }
@@ -231,13 +294,13 @@ function applyDefault(value: string, lineNumber: number, target: EnvVarSchema) {
     case "number":
       const num = Number(value);
       if (isNaN(num)) {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${
         //     lineNumber + 1
         //   }: Default value must be a valid number.`
         // );
 
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.parser.defaultMustBeNumber(lineNumber)
         );
       }
@@ -246,12 +309,12 @@ function applyDefault(value: string, lineNumber: number, target: EnvVarSchema) {
 
     case "boolean":
       if (value !== "true" && value !== "false") {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${
         //     lineNumber + 1
         //   }: Default value must be "true" or "false".`
         // );
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.parser.defaultMustBeBoolean(lineNumber)
         );
       }
@@ -260,12 +323,12 @@ function applyDefault(value: string, lineNumber: number, target: EnvVarSchema) {
 
     case "enum":
       if (!values || !values.includes(value)) {
-        // throw new EnvError(
+        // throw new EnvxError(
         //   `[envx:error] Line ${
         //     lineNumber + 1
         //   }: Default "${value}" is not in enum values.`
         // );
-        throw new EnvError(
+        throw new EnvxError(
           ERROR_MESSAGES.lib.parser.defaultNotInEnum(lineNumber, value)
         );
       }
@@ -286,7 +349,7 @@ function applyDefault(value: string, lineNumber: number, target: EnvVarSchema) {
  * @param {number} lineNumber - The line number for error messages.
  * @returns {{ key: string, value: string, isMultilineStart: boolean }} Parsed result.
  *
- * @throws {EnvError} If the line is invalid or missing a key.
+ * @throws {EnvxError} If the line is invalid or missing a key.
  */
 function parseEnvLine(
   line: string,
@@ -300,10 +363,12 @@ function parseEnvLine(
   const key = rawKey.trim();
 
   if (!key) {
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${lineNumber + 1}: Variable name cannot be empty.`
     // );
-    throw new EnvError(ERROR_MESSAGES.lib.parser.variableNameEmpty(lineNumber));
+    throw new EnvxError(
+      ERROR_MESSAGES.lib.parser.variableNameEmpty(lineNumber)
+    );
   }
 
   const trimmedValue = rawValue.trim();
@@ -325,12 +390,12 @@ function parseEnvLine(
 function splitKeyValue(line: string, lineNumber: number): [string, string] {
   const eqIndex = line.indexOf("=");
   if (eqIndex === -1) {
-    // throw new EnvError(
+    // throw new EnvxError(
     //   `[envx:error] Line ${
     //     lineNumber + 1
     //   }: Missing "=" delimiter in assignment.`
     // );
-    throw new EnvError(ERROR_MESSAGES.lib.parser.missingDelimiter(lineNumber));
+    throw new EnvxError(ERROR_MESSAGES.lib.parser.missingDelimiter(lineNumber));
   }
   return [line.slice(0, eqIndex), line.slice(eqIndex + 1)];
 }

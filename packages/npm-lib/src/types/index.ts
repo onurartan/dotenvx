@@ -19,9 +19,9 @@ export type EnvSchema = Record<string, EnvVarSchema>;
 
 export type EnvResult = Record<string, string | number | boolean>;
 
-export class EnvError extends Error {
+export class EnvxError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "EnvError";
+    this.name = "EnvxError";
   }
 }
