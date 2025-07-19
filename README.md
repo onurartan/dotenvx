@@ -1,3 +1,16 @@
+> 🚨 **Note:** This project is no longer maintained as `dotenvx`.
+>
+> It has evolved into **Typenv** — a smarter, safer way to manage your environment variables.
+>
+> 👉 Check out the new project:
+>
+> - 🌐 Website: [https://typenv.trymagic.xyz](https://typenv.trymagic.xyz)  
+> - 🔗 GitHub: [https://github.com/trymagiclabs/typenv](https://github.com/trymagiclabs/typenv)
+>   
+> Typenv builds on everything from `dotenvx`, but introduces a cleaner spec (`.envx`), a formal schema format, and a better developer experience across CLI, runtime, and editor tooling.
+
+
+
 # Dotenvx
 
 ![dotenvx logo](assets/dotenvx-banner.png)
